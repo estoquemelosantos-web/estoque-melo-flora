@@ -7,115 +7,60 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --melo-blue: #1e3a8a;
-            --melo-bg: #f8fafc;
-        }
-        .sidebar-item.active {
-            background-color: var(--melo-blue);
-            color: white;
-            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
-        }
-        .btn-melo {
-            background-color: var(--melo-blue);
-            transition: all 0.2s ease;
-        }
-        .btn-melo:hover {
-            filter: brightness(1.2);
-            transform: translateY(-1px);
-        }
-        .logo-box {
-            width: 100%;
-            height: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 1.5rem;
-            overflow: hidden;
-            background: white;
-            transition: all 0.3s;
-            border: 2px solid #f1f5f9;
-        }
-        #main-logo-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 8px;
-        }
-        .loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(255,255,255,0.9);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        :root { --melo-blue: #1e3a8a; }
+        .sidebar-item.active { background-color: var(--melo-blue); color: white; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2); }
+        .btn-melo { background-color: var(--melo-blue); transition: all 0.2s ease; }
+        .btn-melo:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        .logo-box { width: 100%; height: 140px; display: flex; align-items: center; justify-content: center; border-radius: 1.5rem; overflow: hidden; background: white; border: 2px solid #f1f5f9; }
+        #main-logo-img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
 
-    <!-- Overlay de Carregamento -->
-    <div id="loader" class="loading-overlay">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-900 mb-4"></div>
-        <p class="font-black text-blue-900 text-[10px] uppercase tracking-widest text-center px-4">Sincronizando com a Nuvem...</p>
-    </div>
-
     <div id="app" class="flex h-screen overflow-hidden">
-        
         <!-- Sidebar -->
         <aside class="w-72 bg-white border-r flex flex-col shadow-lg z-20">
             <div class="p-6 border-b text-center">
                 <div class="logo-box">
-                    <div id="logo-display" class="flex items-center justify-center w-full h-full">
-                        <!-- IMAGEM DA LOGO ATUALIZADA -->
-                        <img src="logo.jpeg" 
-                             id="main-logo-img" 
-                             alt="Melo Flora Logo"
-                             onerror="this.style.display='none'; document.getElementById('logo-fallback').classList.remove('hidden')">
-                        <!-- Fallback caso a imagem não carregue -->
-                        <div id="logo-fallback" class="hidden flex flex-col items-center">
-                            <i class="fas fa-leaf text-3xl text-blue-900 mb-2"></i>
-                            <span class="text-[10px] font-black text-blue-900 uppercase">Melo Flora</span>
-                        </div>
+                    <img src="logo.jpeg" id="main-logo-img" alt="Melo Flora Logo" onerror="this.style.display='none'; document.getElementById('logo-fallback').classList.remove('hidden')">
+                    <div id="logo-fallback" class="hidden flex flex-col items-center">
+                        <i class="fas fa-leaf text-3xl text-blue-900 mb-2"></i>
+                        <span class="text-[10px] font-black text-blue-900 uppercase">Melo Flora</span>
                     </div>
                 </div>
                 <div class="mt-4">
                     <h1 class="text-sm font-black text-blue-900 uppercase tracking-widest">Melo Flora</h1>
-                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Vitaminas e Suplementos</p>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Gestão Local</p>
                 </div>
             </div>
-            
-            <nav class="flex-1 overflow-y-auto p-4">
-                <div class="flex justify-between items-center px-2 mb-4">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Categorias</span>
-                    <span id="badge-cat-count" class="bg-slate-100 text-slate-500 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
-                </div>
-                <div id="category-list" class="space-y-2"></div>
-            </nav>
 
-            <div class="p-4 border-t bg-slate-50 space-y-2">
-                <button onclick="window.ui.exportCSV()" class="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-bold text-[11px] hover:shadow-sm transition-all">
-                    <i class="fas fa-file-excel text-green-600"></i> RELATÓRIO EXCEL
-                </button>
-                <button onclick="window.ui.showModal('modal-cat')" class="w-full btn-melo text-white py-3.5 rounded-xl font-black text-sm shadow-md mt-2 flex items-center justify-center gap-2">
+            <!-- Navegação de Categorias -->
+            <nav class="flex-1 overflow-y-auto p-4" id="category-list"></nav>
+
+            <!-- Ações de Backup e Nova Categoria -->
+            <div class="p-4 border-t bg-slate-50 flex flex-col gap-2">
+                <button onclick="window.ui.showModal('modal-cat')" class="w-full btn-melo text-white py-3.5 rounded-xl font-black text-sm shadow-md flex items-center justify-center gap-2">
                     <i class="fas fa-plus"></i> NOVA PÁGINA
                 </button>
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <button onclick="window.ui.exportBackup()" class="text-[9px] font-black uppercase tracking-widest bg-white border py-2 rounded-lg text-slate-500 hover:bg-slate-100">
+                        <i class="fas fa-download mr-1"></i> Exportar
+                    </button>
+                    <label class="text-[9px] font-black uppercase tracking-widest bg-white border py-2 rounded-lg text-slate-500 hover:bg-slate-100 text-center cursor-pointer">
+                        <i class="fas fa-upload mr-1"></i> Importar
+                        <input type="file" class="hidden" onchange="window.ui.importBackup(this)">
+                    </label>
+                </div>
             </div>
         </aside>
 
-        <!-- Conteúdo Principal -->
-        <main class="flex-1 flex flex-col bg-[#fcfcfc]">
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
             <header class="h-20 bg-white border-b px-10 flex justify-between items-center shadow-sm">
                 <h2 id="header-title" class="text-xl font-black text-blue-900 uppercase tracking-tight">Estoque Geral</h2>
                 <div id="header-actions" class="hidden flex gap-2">
-                    <button onclick="window.ui.showModal('modal-item')" class="btn-melo text-white px-6 py-2.5 rounded-xl font-black text-xs flex items-center gap-2 shadow-lg">
-                        <i class="fas fa-plus-circle"></i> NOVO PRODUTO
-                    </button>
-                    <button onclick="window.ui.deleteCategory()" class="bg-red-50 text-red-500 w-10 h-10 rounded-xl hover:bg-red-500 hover:text-white transition-all flex items-center justify-center border border-red-100">
+                    <button onclick="window.ui.showModal('modal-item')" class="btn-melo text-white px-6 py-2.5 rounded-xl font-black text-xs">NOVO PRODUTO</button>
+                    <button onclick="window.ui.deleteCategory()" class="text-red-500 w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center border border-red-100 hover:bg-red-500 hover:text-white transition-colors">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
@@ -123,301 +68,220 @@
 
             <div id="content-area" class="flex-1 overflow-y-auto p-10">
                 <div id="empty-view" class="h-full flex flex-col items-center justify-center text-slate-300">
-                    <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm mb-6 border border-slate-100">
-                        <i class="fas fa-leaf text-4xl text-blue-900/10"></i>
-                    </div>
-                    <p class="font-black uppercase tracking-widest text-[11px]">Selecione uma pasta para gerir</p>
+                    <i class="fas fa-folder-open text-5xl mb-4 opacity-20"></i>
+                    <p class="font-black uppercase tracking-widest text-[11px]">Selecione uma categoria na lateral</p>
                 </div>
                 <div id="items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
             </div>
         </main>
 
         <!-- Modais -->
-        <div id="modal-cat" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div id="modal-cat" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
             <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl">
-                <h3 class="text-lg font-black text-blue-900 mb-6 uppercase">Nova Pasta</h3>
-                <input type="text" id="in-cat-name" placeholder="Ex: Vitaminas C" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 outline-none focus:border-blue-900 font-bold mb-6">
+                <h3 class="text-lg font-black text-blue-900 mb-6 uppercase">Criar Pasta</h3>
+                <input type="text" id="in-cat-name" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 mb-6 outline-none focus:border-blue-900 transition-colors" placeholder="Nome da Categoria">
                 <div class="flex gap-3">
-                    <button onclick="window.ui.hideModals()" class="flex-1 py-4 font-bold text-slate-400 hover:bg-slate-50 rounded-2xl transition-all">Sair</button>
-                    <button onclick="window.ui.createCategory()" class="flex-1 py-4 btn-melo text-white font-black rounded-2xl shadow-lg transition-all">CRIAR</button>
+                    <button onclick="window.ui.hideModals()" class="flex-1 py-4 font-bold text-slate-400">Sair</button>
+                    <button onclick="window.ui.createCategory()" class="flex-1 py-4 btn-melo text-white font-black rounded-2xl">CRIAR</button>
                 </div>
             </div>
         </div>
 
-        <div id="modal-item" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div id="modal-item" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
             <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
-                <h3 class="text-lg font-black text-blue-900 mb-6 uppercase">Registar Item</h3>
-                <div class="space-y-4">
-                    <input type="text" id="in-item-name" placeholder="Nome do produto" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 outline-none focus:border-blue-900 font-bold">
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="number" id="in-item-qty" value="0" step="0.01" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 outline-none focus:border-blue-900 font-bold text-center">
-                        <select id="in-item-unit" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 outline-none focus:border-blue-900 font-bold">
-                            <option value="un">un</option>
-                            <option value="g">g</option>
-                            <option value="kg">kg</option>
-                            <option value="ml">ml</option>
-                            <option value="lt">lt</option>
-                        </select>
-                    </div>
+                <h3 class="text-lg font-black text-blue-900 mb-6 uppercase">Novo Produto</h3>
+                <input type="text" id="in-item-name" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 mb-4 outline-none focus:border-blue-900" placeholder="Nome do Produto">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="in-item-qty" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 text-center font-bold" value="0">
+                    <select id="in-item-unit" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 font-bold">
+                        <option value="un">un</option><option value="kg">kg</option><option value="g">g</option>
+                    </select>
                 </div>
                 <div class="flex gap-3 mt-8">
-                    <button onclick="window.ui.hideModals()" class="flex-1 py-4 font-bold text-slate-400 hover:bg-slate-50 rounded-2xl transition-all">Cancelar</button>
-                    <button onclick="window.ui.createItem()" class="flex-1 py-4 btn-melo text-white font-black rounded-2xl shadow-lg transition-all">GUARDAR</button>
+                    <button onclick="window.ui.hideModals()" class="flex-1 py-4 font-bold text-slate-400">Sair</button>
+                    <button onclick="window.ui.createItem()" class="flex-1 py-4 btn-melo text-white font-black rounded-2xl">GUARDAR</button>
                 </div>
             </div>
         </div>
 
-        <div id="modal-adjust" class="fixed inset-0 bg-blue-900/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-[2.5rem] p-10 w-full max-w-xs shadow-2xl text-center">
-                <p id="adj-title" class="text-xs font-black text-slate-400 uppercase mb-2 tracking-widest"></p>
-                <h4 id="adj-item-name" class="text-xl font-black text-blue-900 mb-6 truncate px-4"></h4>
-                <input type="number" id="adj-value" step="0.01" placeholder="0.00" class="w-full border-b-4 border-slate-100 py-4 text-4xl font-black text-center outline-none focus:border-blue-900 mb-8 bg-transparent">
-                <div id="adj-btn-container"></div>
-                <button onclick="window.ui.hideModals()" class="mt-6 text-slate-400 font-bold text-[10px] uppercase tracking-widest hover:text-slate-600">Fechar</button>
-            </div>
-        </div>
-
-        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl translate-y-32 transition-transform duration-500 z-50 font-black text-[10px] uppercase tracking-widest flex items-center gap-3">
-            <i class="fas fa-check-circle text-green-400 text-base"></i>
-            <span id="toast-text"></span>
+        <!-- Notificação Toast -->
+        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl translate-y-32 transition-transform duration-500 z-50 shadow-xl">
+            <span id="toast-text" class="font-black text-[10px] uppercase tracking-widest"></span>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        // Configurações do ambiente
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'melo-flora-prod';
-
+    <script>
+        const DB_KEY = 'melo_flora_db_v2';
         window.state = {
-            categories: [],
-            currentId: null,
-            user: null
+            categories: JSON.parse(localStorage.getItem(DB_KEY)) || [],
+            currentId: null
         };
 
         window.ui = {
-            async init() {
-                // Iniciar autenticação para permitir sincronização multi-utilizador
-                try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                } catch (err) {
-                    console.error("Erro auth:", err);
-                }
-                
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        window.state.user = user;
-                        this.bindDatabase();
-                    }
-                });
+            init() {
+                this.render();
             },
 
-            bindDatabase() {
-                // Sincronização em Tempo Real (O que um altera, todos vêem)
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'estoque_v1');
-                
-                onSnapshot(docRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        window.state.categories = snapshot.data().categories || [];
-                    } else {
-                        setDoc(docRef, { categories: [] });
-                    }
-                    document.getElementById('loader').classList.add('hidden');
-                    this.renderAll();
-                }, (error) => {
-                    console.error("Erro ao sincronizar:", error);
-                    this.toast("Erro de Ligação");
-                });
+            save() {
+                localStorage.setItem(DB_KEY, JSON.stringify(window.state.categories));
+                this.render();
             },
 
-            async save() {
-                if (!window.state.user) return;
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'estoque_v1');
-                try {
-                    await setDoc(docRef, { categories: window.state.categories });
-                } catch (e) {
-                    this.toast("Erro ao Gravar na Nuvem");
-                }
-            },
-
-            renderAll() {
+            render() {
                 const list = document.getElementById('category-list');
-                const badge = document.getElementById('badge-cat-count');
-                badge.textContent = window.state.categories.length;
                 list.innerHTML = '';
-
+                
                 window.state.categories.forEach(cat => {
-                    const active = window.state.currentId === cat.id;
-                    const el = document.createElement('button');
-                    el.className = `sidebar-item w-full text-left px-5 py-4 rounded-2xl flex justify-between items-center transition-all font-bold text-[11px] uppercase tracking-tight ${active ? 'active' : 'text-slate-400 hover:bg-slate-50'}`;
-                    el.innerHTML = `<span><i class="fas fa-folder mr-2 opacity-30"></i> ${cat.name}</span><span class="opacity-40 text-[9px] font-black bg-slate-100 px-2 py-0.5 rounded-lg text-slate-500">${cat.items.length}</span>`;
-                    el.onclick = () => this.selectCategory(cat.id);
-                    list.appendChild(el);
+                    const btn = document.createElement('button');
+                    btn.className = `sidebar-item w-full text-left px-5 py-4 rounded-2xl mb-2 font-bold text-[11px] uppercase transition-all flex justify-between items-center ${window.state.currentId === cat.id ? 'active' : 'text-slate-400 hover:bg-slate-50'}`;
+                    btn.innerHTML = `
+                        <span><i class="fas fa-folder mr-2 opacity-30"></i> ${cat.name}</span>
+                        <span class="bg-slate-100 text-slate-500 w-6 h-6 rounded-lg flex items-center justify-center text-[9px] ${window.state.currentId === cat.id ? 'bg-blue-800 text-white' : ''}">
+                            ${cat.items ? cat.items.length : 0}
+                        </span>
+                    `;
+                    btn.onclick = () => { window.state.currentId = cat.id; this.render(); };
+                    list.appendChild(btn);
                 });
                 this.renderGrid();
             },
 
             renderGrid() {
                 const grid = document.getElementById('items-grid');
-                const empty = document.getElementById('empty-view');
-                const actions = document.getElementById('header-actions');
-                const title = document.getElementById('header-title');
-                
                 const cat = window.state.categories.find(c => c.id === window.state.currentId);
-                if (!cat) {
-                    grid.innerHTML = '';
-                    empty.classList.remove('hidden');
-                    actions.classList.add('hidden');
-                    title.textContent = "Gestão de Stocks";
-                    return;
+                
+                if (!cat) { 
+                    document.getElementById('empty-view').classList.remove('hidden'); 
+                    document.getElementById('header-actions').classList.add('hidden'); 
+                    document.getElementById('header-title').textContent = "Estoque";
+                    grid.innerHTML = ''; 
+                    return; 
                 }
 
-                empty.classList.add('hidden');
-                actions.classList.remove('hidden');
-                title.textContent = cat.name;
+                document.getElementById('empty-view').classList.add('hidden');
+                document.getElementById('header-actions').classList.remove('hidden');
+                document.getElementById('header-title').textContent = cat.name;
                 grid.innerHTML = '';
-
-                cat.items.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = "bg-white p-7 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition-all group animate-in fade-in zoom-in duration-300";
-                    div.innerHTML = `
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="w-10 h-10 bg-blue-50 text-blue-900 rounded-xl flex items-center justify-center font-black text-lg shadow-inner">${item.name.charAt(0).toUpperCase()}</div>
-                            <button onclick="window.ui.deleteItem('${item.id}')" class="text-slate-200 hover:text-red-500 p-2 transition-colors opacity-0 group-hover:opacity-100">
-                                <i class="fas fa-trash-alt text-xs"></i>
-                            </button>
-                        </div>
-                        <h4 class="font-black text-blue-900 mb-6 truncate text-sm uppercase tracking-tight leading-relaxed">${item.name}</h4>
-                        <div class="flex items-end justify-between border-t border-slate-50 pt-5">
-                            <div>
-                                <span class="text-3xl font-black text-blue-900 tracking-tighter ${item.qty <= 5 ? 'text-red-500' : ''}">${item.qty}</span>
-                                <span class="text-[9px] font-black text-slate-300 uppercase ml-1 tracking-widest">${item.unit}</span>
+                
+                if (cat.items && cat.items.length > 0) {
+                    cat.items.forEach(item => {
+                        const d = document.createElement('div');
+                        d.className = "bg-white p-7 rounded-[2rem] border shadow-sm flex flex-col justify-between hover:shadow-md transition-all group";
+                        d.innerHTML = `
+                            <div class="flex justify-between items-start mb-6">
+                                <h4 class="font-black text-blue-900 text-sm truncate uppercase">${item.name}</h4>
+                                <button onclick="window.ui.deleteItem('${item.id}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all">
+                                    <i class="fas fa-times-circle"></i>
+                                </button>
                             </div>
-                            <div class="flex gap-2">
-                                <button onclick="window.ui.prepareAdjust('${item.id}', 'out')" class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl hover:bg-red-500 hover:text-white transition-all flex items-center justify-center shadow-sm"><i class="fas fa-minus text-xs"></i></button>
-                                <button onclick="window.ui.prepareAdjust('${item.id}', 'in')" class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl hover:bg-green-600 hover:text-white transition-all flex items-center justify-center shadow-sm"><i class="fas fa-plus text-xs"></i></button>
+                            <div class="flex justify-between items-end border-t border-slate-50 pt-5">
+                                <span class="text-3xl font-black text-blue-900">${item.qty}<small class="text-[10px] ml-1 opacity-30 uppercase font-bold">${item.unit}</small></span>
+                                <div class="flex gap-2">
+                                    <button onclick="window.ui.adjust('${item.id}', -1)" class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl hover:bg-red-500 hover:text-white transition-all font-bold shadow-sm">-</button>
+                                    <button onclick="window.ui.adjust('${item.id}', 1)" class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl hover:bg-green-600 hover:text-white transition-all font-bold shadow-sm">+</button>
+                                </div>
                             </div>
-                        </div>
-                    `;
-                    grid.appendChild(div);
-                });
-            },
-
-            selectCategory(id) {
-                window.state.currentId = id;
-                this.renderAll();
+                        `;
+                        grid.appendChild(d);
+                    });
+                } else {
+                    grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest">Nenhum produto nesta categoria</div>`;
+                }
             },
 
             createCategory() {
-                const name = document.getElementById('in-cat-name').value.trim();
-                if (!name) return;
-                const newCat = { id: 'c' + Date.now(), name, items: [] };
-                window.state.categories.push(newCat);
-                window.state.currentId = newCat.id;
+                const n = document.getElementById('in-cat-name').value.trim();
+                if(!n) return;
+                const nc = { id: 'c' + Date.now(), name: n, items: [] };
+                window.state.categories.push(nc); 
+                window.state.currentId = nc.id;
                 document.getElementById('in-cat-name').value = '';
-                this.hideModals();
-                this.save();
-                this.toast("Pasta Criada");
-            },
-
-            deleteCategory() {
-                if (!confirm("Remover esta categoria para TODOS os utilizadores?")) return;
-                window.state.categories = window.state.categories.filter(c => c.id !== window.state.currentId);
-                window.state.currentId = null;
-                this.save();
-                this.toast("Pasta Removida");
+                this.hideModals(); this.save(); this.toast("Categoria Criada");
             },
 
             createItem() {
-                const name = document.getElementById('in-item-name').value.trim();
-                const qty = parseFloat(document.getElementById('in-item-qty').value) || 0;
-                const unit = document.getElementById('in-item-unit').value;
-                if (!name || !window.state.currentId) return;
-
+                const n = document.getElementById('in-item-name').value.trim();
+                const q = parseFloat(document.getElementById('in-item-qty').value) || 0;
+                const u = document.getElementById('in-item-unit').value;
                 const cat = window.state.categories.find(c => c.id === window.state.currentId);
-                cat.items.push({ id: 'i' + Date.now(), name, qty, unit });
                 
-                this.hideModals();
-                this.save();
-                document.getElementById('in-item-name').value = '';
-                document.getElementById('in-item-qty').value = '0';
-                this.toast("Item Registado");
-            },
-
-            deleteItem(id) {
-                if (!confirm("Remover este item?")) return;
-                const cat = window.state.categories.find(c => c.id === window.state.currentId);
-                if (cat) {
-                    cat.items = cat.items.filter(i => i.id !== id);
-                    this.save();
-                    this.toast("Item Removido");
+                if(n && cat) {
+                    if(!cat.items) cat.items = [];
+                    cat.items.push({ id: 'i' + Date.now(), name: n, qty: q, unit: u });
+                    document.getElementById('in-item-name').value = '';
+                    document.getElementById('in-item-qty').value = '0';
+                    this.hideModals(); this.save(); this.toast("Produto Adicionado");
                 }
             },
 
-            prepareAdjust(itemId, type) {
+            adjust(id, val) {
                 const cat = window.state.categories.find(c => c.id === window.state.currentId);
-                const item = cat.items.find(i => i.id === itemId);
-                
-                document.getElementById('adj-title').textContent = type === 'in' ? "Nova Entrada" : "Saída de Stock";
-                document.getElementById('adj-item-name').textContent = item.name;
-                
-                const container = document.getElementById('adj-btn-container');
-                container.innerHTML = '';
-                const btn = document.createElement('button');
-                btn.className = `w-full py-5 rounded-2xl font-black text-white shadow-xl transition-all active:scale-95 ${type === 'in' ? 'bg-green-600' : 'bg-red-600'}`;
-                btn.textContent = "CONFIRMAR";
-                btn.onclick = () => {
-                    const val = parseFloat(document.getElementById('adj-value').value) || 0;
-                    if (val <= 0) return;
-                    item.qty = type === 'in' ? item.qty + val : Math.max(0, item.qty - val);
-                    item.qty = parseFloat(item.qty.toFixed(2));
-                    document.getElementById('adj-value').value = '';
-                    this.hideModals();
+                const item = cat.items.find(i => i.id == id);
+                if (item) {
+                    item.qty = Math.max(0, parseFloat((item.qty + val).toFixed(2)));
                     this.save();
-                    this.toast("Stock Atualizado");
-                };
-                container.appendChild(btn);
-                this.showModal('modal-adjust');
-                setTimeout(() => document.getElementById('adj-value').focus(), 100);
+                }
             },
 
-            exportCSV() {
-                if (window.state.categories.length === 0) return;
-                let csv = "\uFEFFCategoria;Produto;Quantidade;Unidade\n";
-                window.state.categories.forEach(c => {
-                    c.items.forEach(i => {
-                        csv += `${c.name};${i.name};${i.qty};${i.unit}\n`;
-                    });
-                });
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `Relatorio_Estoque_MeloFlora.csv`;
-                link.click();
+            deleteItem(id) {
+                if(confirm("Remover este produto?")) {
+                    const cat = window.state.categories.find(c => c.id === window.state.currentId);
+                    cat.items = cat.items.filter(i => i.id !== id);
+                    this.save();
+                }
+            },
+
+            deleteCategory() { 
+                if(confirm("Deseja apagar esta categoria e todos os produtos nela contidos?")) { 
+                    window.state.categories = window.state.categories.filter(c => c.id !== window.state.currentId); 
+                    window.state.currentId = null; 
+                    this.save(); 
+                } 
+            },
+
+            exportBackup() {
+                const dataStr = JSON.stringify(window.state.categories, null, 2);
+                const blob = new Blob([dataStr], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `melo_flora_backup_${new Date().toISOString().slice(0,10)}.json`;
+                a.click();
+                this.toast("Backup Exportado");
+            },
+
+            importBackup(input) {
+                const file = input.files;
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (Array.isArray(imported)) {
+                            window.state.categories = imported;
+                            window.state.currentId = null;
+                            this.save();
+                            this.toast("Backup Restaurado com Sucesso");
+                        }
+                    } catch (err) {
+                        this.toast("Erro ao ler arquivo");
+                    }
+                };
+                reader.readAsText(file);
+                input.value = ''; // Reset input
             },
 
             showModal(id) { document.getElementById(id).classList.replace('hidden', 'flex'); },
             hideModals() { document.querySelectorAll('.fixed.inset-0').forEach(m => m.classList.replace('flex', 'hidden')); },
-            toast(msg) {
-                const t = document.getElementById('toast');
-                document.getElementById('toast-text').textContent = msg;
-                t.classList.remove('translate-y-32');
-                setTimeout(() => t.classList.add('translate-y-32'), 2500);
+            toast(m) { 
+                const t = document.getElementById('toast'); 
+                document.getElementById('toast-text').textContent = m; 
+                t.classList.remove('translate-y-32'); 
+                setTimeout(() => t.classList.add('translate-y-32'), 2500); 
             }
         };
 
-        window.onload = () => window.ui.init();
+        window.ui.init();
     </script>
 </body>
 </html>
