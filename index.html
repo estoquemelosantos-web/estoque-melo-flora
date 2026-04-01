@@ -36,7 +36,8 @@
             font-size: 10px;
             font-weight: 900;
         }
-        #main-logo-img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+        #main-logo-img { width: 100%; height: 100%; object-fit: contain; padding: 12px; }
+        .logo-placeholder { display: flex; flex-direction: column; align-items: center; color: #cbd5e1; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
@@ -46,7 +47,12 @@
         <aside class="w-72 bg-white border-r flex flex-col shadow-lg z-20">
             <div class="p-6 border-b text-center">
                 <div class="logo-box" onclick="document.getElementById('in-logo-file').click()">
-                    <img src="logo.jpeg" id="main-logo-img" alt="Logo">
+                    <!-- Se não houver imagem salva, o onerror ativa o fallback -->
+                    <img id="main-logo-img" alt="Logo" class="hidden">
+                    <div id="logo-fallback" class="logo-placeholder">
+                        <i class="fas fa-camera text-3xl mb-2"></i>
+                        <span class="text-[9px] font-black uppercase">Adicionar Logo</span>
+                    </div>
                     <input type="file" id="in-logo-file" class="hidden" accept="image/*" onchange="window.ui.handleLogoUpload(this)">
                 </div>
                 <div class="mt-4">
@@ -157,8 +163,16 @@
 
             loadLogo() {
                 const savedLogo = localStorage.getItem(LOGO_KEY);
+                const img = document.getElementById('main-logo-img');
+                const fallback = document.getElementById('logo-fallback');
+                
                 if (savedLogo) {
-                    document.getElementById('main-logo-img').src = savedLogo;
+                    img.src = savedLogo;
+                    img.classList.remove('hidden');
+                    fallback.classList.add('hidden');
+                } else {
+                    img.classList.add('hidden');
+                    fallback.classList.remove('hidden');
                 }
             },
 
@@ -168,7 +182,7 @@
                     reader.onload = (e) => {
                         const base64 = e.target.result;
                         localStorage.setItem(LOGO_KEY, base64);
-                        document.getElementById('main-logo-img').src = base64;
+                        this.loadLogo();
                         this.toast("Logo Atualizada!");
                     };
                     reader.readAsDataURL(input.files);
@@ -293,8 +307,11 @@
             },
 
             exportBackup() {
-                const dataStr = JSON.stringify(window.state.categories, null, 2);
-                const blob = new Blob([dataStr], { type: "application/json" });
+                const data = {
+                    db: window.state.categories,
+                    logo: localStorage.getItem(LOGO_KEY)
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -304,9 +321,8 @@
             },
 
             exportCSV() {
-                let csvContent = "\uFEFF"; // BOM para acentos corretos no Excel
+                let csvContent = "\uFEFF"; 
                 csvContent += "Categoria;Produto;Quantidade;Unidade\n";
-                
                 window.state.categories.forEach(cat => {
                     if(cat.items) {
                         cat.items.forEach(item => {
@@ -314,36 +330,35 @@
                         });
                     }
                 });
-
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
-                link.setAttribute("href", url);
-                link.setAttribute("download", "estoque_melo_flora.csv");
-                document.body.appendChild(link);
+                link.href = url;
+                link.download = "estoque_melo_flora.csv";
                 link.click();
-                document.body.removeChild(link);
                 this.toast("Planilha Gerada!");
             },
 
             importBackup(input) {
-                if (!input.files || input.files.length === 0) return;
-                const file = input.files;
+                if (!input.files || !input.files) return;
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
                         const imported = JSON.parse(e.target.result);
-                        if (Array.isArray(imported)) {
-                            window.state.categories = imported;
-                            window.state.currentId = null;
-                            this.save();
-                            this.toast("Dados Restaurados!");
+                        // Suporta tanto formato simples quanto formato com logo
+                        window.state.categories = imported.db || imported;
+                        if (imported.logo) {
+                            localStorage.setItem(LOGO_KEY, imported.logo);
+                            this.loadLogo();
                         }
+                        window.state.currentId = null;
+                        this.save();
+                        this.toast("Dados Restaurados!");
                     } catch (err) {
                         this.toast("Erro ao ler backup");
                     }
                 };
-                reader.readAsText(file);
+                reader.readAsText(input.files);
                 input.value = ''; 
             },
 
