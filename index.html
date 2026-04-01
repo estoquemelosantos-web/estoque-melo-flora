@@ -13,6 +13,8 @@
         .btn-melo:hover { filter: brightness(1.2); transform: translateY(-1px); }
         .logo-box { width: 100%; height: 140px; display: flex; align-items: center; justify-content: center; border-radius: 1.5rem; overflow: hidden; background: white; border: 2px solid #f1f5f9; }
         #main-logo-img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+        /* Garantir que não há overlays de carregamento */
+        .loading-overlay { display: none !important; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
@@ -30,7 +32,7 @@
                 </div>
                 <div class="mt-4">
                     <h1 class="text-sm font-black text-blue-900 uppercase tracking-widest">Melo Flora</h1>
-                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Gestão Local</p>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Stock Local (Sem Nuvem)</p>
                 </div>
             </div>
 
@@ -48,7 +50,7 @@
                     </button>
                     <label class="text-[9px] font-black uppercase tracking-widest bg-white border py-2 rounded-lg text-slate-500 hover:bg-slate-100 text-center cursor-pointer">
                         <i class="fas fa-upload mr-1"></i> Importar
-                        <input type="file" class="hidden" onchange="window.ui.importBackup(this)">
+                        <input type="file" class="hidden" accept=".json" onchange="window.ui.importBackup(this)">
                     </label>
                 </div>
             </div>
@@ -57,7 +59,7 @@
         <!-- Main Content -->
         <main class="flex-1 flex flex-col">
             <header class="h-20 bg-white border-b px-10 flex justify-between items-center shadow-sm">
-                <h2 id="header-title" class="text-xl font-black text-blue-900 uppercase tracking-tight">Estoque Geral</h2>
+                <h2 id="header-title" class="text-xl font-black text-blue-900 uppercase tracking-tight">Painel de Controlo</h2>
                 <div id="header-actions" class="hidden flex gap-2">
                     <button onclick="window.ui.showModal('modal-item')" class="btn-melo text-white px-6 py-2.5 rounded-xl font-black text-xs">NOVO PRODUTO</button>
                     <button onclick="window.ui.deleteCategory()" class="text-red-500 w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center border border-red-100 hover:bg-red-500 hover:text-white transition-colors">
@@ -68,8 +70,8 @@
 
             <div id="content-area" class="flex-1 overflow-y-auto p-10">
                 <div id="empty-view" class="h-full flex flex-col items-center justify-center text-slate-300">
-                    <i class="fas fa-folder-open text-5xl mb-4 opacity-20"></i>
-                    <p class="font-black uppercase tracking-widest text-[11px]">Selecione uma categoria na lateral</p>
+                    <i class="fas fa-leaf text-5xl mb-4 opacity-10"></i>
+                    <p class="font-black uppercase tracking-widest text-[11px]">Selecione uma pasta lateral</p>
                 </div>
                 <div id="items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
             </div>
@@ -79,7 +81,7 @@
         <div id="modal-cat" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
             <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl">
                 <h3 class="text-lg font-black text-blue-900 mb-6 uppercase">Criar Pasta</h3>
-                <input type="text" id="in-cat-name" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 mb-6 outline-none focus:border-blue-900 transition-colors" placeholder="Nome da Categoria">
+                <input type="text" id="in-cat-name" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 mb-6 outline-none focus:border-blue-900" placeholder="Ex: Adubos, Vasos...">
                 <div class="flex gap-3">
                     <button onclick="window.ui.hideModals()" class="flex-1 py-4 font-bold text-slate-400">Sair</button>
                     <button onclick="window.ui.createCategory()" class="flex-1 py-4 btn-melo text-white font-black rounded-2xl">CRIAR</button>
@@ -92,10 +94,16 @@
                 <h3 class="text-lg font-black text-blue-900 mb-6 uppercase">Novo Produto</h3>
                 <input type="text" id="in-item-name" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 mb-4 outline-none focus:border-blue-900" placeholder="Nome do Produto">
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="in-item-qty" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 text-center font-bold" value="0">
-                    <select id="in-item-unit" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 font-bold">
-                        <option value="un">un</option><option value="kg">kg</option><option value="g">g</option>
-                    </select>
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-black uppercase text-slate-400 mb-1 ml-2">Quantidade</label>
+                        <input type="number" id="in-item-qty" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 text-center font-bold" value="0">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-black uppercase text-slate-400 mb-1 ml-2">Unidade</label>
+                        <select id="in-item-unit" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 font-bold">
+                            <option value="un">un</option><option value="kg">kg</option><option value="g">g</option><option value="L">L</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="flex gap-3 mt-8">
                     <button onclick="window.ui.hideModals()" class="flex-1 py-4 font-bold text-slate-400">Sair</button>
@@ -104,14 +112,14 @@
             </div>
         </div>
 
-        <!-- Notificação Toast -->
         <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl translate-y-32 transition-transform duration-500 z-50 shadow-xl">
             <span id="toast-text" class="font-black text-[10px] uppercase tracking-widest"></span>
         </div>
     </div>
 
     <script>
-        const DB_KEY = 'melo_flora_db_v2';
+        const DB_KEY = 'melo_flora_local_v3';
+        
         window.state = {
             categories: JSON.parse(localStorage.getItem(DB_KEY)) || [],
             currentId: null
@@ -119,6 +127,7 @@
 
         window.ui = {
             init() {
+                console.log("Sistema Melo Flora Iniciado (Offline)");
                 this.render();
             },
 
@@ -153,7 +162,7 @@
                 if (!cat) { 
                     document.getElementById('empty-view').classList.remove('hidden'); 
                     document.getElementById('header-actions').classList.add('hidden'); 
-                    document.getElementById('header-title').textContent = "Estoque";
+                    document.getElementById('header-title').textContent = "Stock Melo Flora";
                     grid.innerHTML = ''; 
                     return; 
                 }
@@ -185,7 +194,7 @@
                         grid.appendChild(d);
                     });
                 } else {
-                    grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest">Nenhum produto nesta categoria</div>`;
+                    grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest">Nenhum produto aqui</div>`;
                 }
             },
 
@@ -196,7 +205,7 @@
                 window.state.categories.push(nc); 
                 window.state.currentId = nc.id;
                 document.getElementById('in-cat-name').value = '';
-                this.hideModals(); this.save(); this.toast("Categoria Criada");
+                this.hideModals(); this.save(); this.toast("Pasta Criada");
             },
 
             createItem() {
@@ -210,7 +219,7 @@
                     cat.items.push({ id: 'i' + Date.now(), name: n, qty: q, unit: u });
                     document.getElementById('in-item-name').value = '';
                     document.getElementById('in-item-qty').value = '0';
-                    this.hideModals(); this.save(); this.toast("Produto Adicionado");
+                    this.hideModals(); this.save(); this.toast("Produto Guardado");
                 }
             },
 
@@ -224,7 +233,7 @@
             },
 
             deleteItem(id) {
-                if(confirm("Remover este produto?")) {
+                if(confirm("Apagar este produto?")) {
                     const cat = window.state.categories.find(c => c.id === window.state.currentId);
                     cat.items = cat.items.filter(i => i.id !== id);
                     this.save();
@@ -232,7 +241,7 @@
             },
 
             deleteCategory() { 
-                if(confirm("Deseja apagar esta categoria e todos os produtos nela contidos?")) { 
+                if(confirm("Deseja apagar esta pasta e tudo o que está dentro dela?")) { 
                     window.state.categories = window.state.categories.filter(c => c.id !== window.state.currentId); 
                     window.state.currentId = null; 
                     this.save(); 
@@ -247,12 +256,12 @@
                 a.href = url;
                 a.download = `melo_flora_backup_${new Date().toISOString().slice(0,10)}.json`;
                 a.click();
-                this.toast("Backup Exportado");
+                this.toast("Backup Criado");
             },
 
             importBackup(input) {
+                if (!input.files || input.files.length === 0) return;
                 const file = input.files;
-                if (!file) return;
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
@@ -261,14 +270,16 @@
                             window.state.categories = imported;
                             window.state.currentId = null;
                             this.save();
-                            this.toast("Backup Restaurado com Sucesso");
+                            this.toast("Dados Restaurados!");
+                        } else {
+                            this.toast("Ficheiro inválido");
                         }
                     } catch (err) {
-                        this.toast("Erro ao ler arquivo");
+                        this.toast("Erro ao ler backup");
                     }
                 };
                 reader.readAsText(file);
-                input.value = ''; // Reset input
+                input.value = ''; 
             },
 
             showModal(id) { document.getElementById(id).classList.replace('hidden', 'flex'); },
