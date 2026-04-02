@@ -3,331 +3,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Melo Flora - Gestão de Estoque Profissional</title>
+    <title>Melo Flora | Gestão Profissional</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --melo-blue: #1e3a8a; }
-        .sidebar-item.active { background-color: var(--melo-blue); color: white; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2); }
-        .btn-melo { background-color: var(--melo-blue); transition: all 0.2s ease; }
-        .btn-melo:hover { filter: brightness(1.2); transform: translateY(-1px); }
-        .logo-box { 
-            width: 100%; height: 140px; display: flex; align-items: center; justify-content: center; 
-            border-radius: 1.5rem; overflow: hidden; background: white; border: 2px solid #f1f5f9; 
-            cursor: pointer; position: relative;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        
+        :root {
+            --brand-primary: #1e3a8a;
+            --brand-secondary: #3b82f6;
+            --bg-main: #f8fafc;
         }
-        .logo-box:hover::after {
-            content: "TROCAR FOTO"; position: absolute; inset: 0; background: rgba(30, 58, 138, 0.8);
-            color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900;
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
-        #main-logo-img { width: 100%; height: 100%; object-fit: contain; padding: 12px; }
-        .logo-placeholder { display: flex; flex-direction: column; align-items: center; color: #cbd5e1; }
+
+        .sidebar-link {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-link.active {
+            background-color: var(--brand-primary);
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.2);
+        }
+
+        .logo-container {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: white;
+            border: 2px dashed #e2e8f0;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            transition: border-color 0.3s;
+        }
+
+        .logo-container:hover { border-color: var(--brand-secondary); }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 1rem;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-pop { animation: slideUp 0.4s ease-out; }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800">
+<body class="text-slate-900 antialiased">
 
     <div id="app" class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
-        <aside class="w-72 bg-white border-r flex flex-col shadow-lg z-20">
-            <div class="p-6 border-b text-center">
-                <div class="logo-box" onclick="document.getElementById('in-logo-file').click()">
-                    <img id="main-logo-img" alt="Logo" class="hidden">
-                    <div id="logo-fallback" class="logo-placeholder">
-                        <i class="fas fa-camera text-3xl mb-2"></i>
-                        <span class="text-[9px] font-black uppercase">Adicionar Logo</span>
+        <!-- Barra Lateral -->
+        <aside class="w-80 bg-white border-r border-slate-200 flex flex-col z-30 shadow-xl">
+            <div class="p-8">
+                <div class="logo-container group" onclick="document.getElementById('file-logo').click()">
+                    <img id="display-logo" src="" alt="Logo Melo Flora" class="hidden">
+                    <div id="placeholder-logo" class="flex flex-col items-center text-slate-400 group-hover:text-blue-600">
+                        <i class="fas fa-cloud-upload-alt text-2xl mb-2"></i>
+                        <span class="text-[10px] font-bold uppercase tracking-widest">Logo da Empresa</span>
                     </div>
-                    <input type="file" id="in-logo-file" class="hidden" accept="image/*" onchange="window.ui.handleLogoUpload(this)">
                 </div>
-                <div class="mt-4">
-                    <h1 class="text-sm font-black text-blue-900 uppercase tracking-widest">Melo Flora</h1>
-                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Armazenamento Local</p>
+                <input type="file" id="file-logo" class="hidden" accept="image/*">
+                
+                <div class="mt-6 text-center">
+                    <h1 class="text-lg font-extrabold text-blue-950 tracking-tight">Melo Flora</h1>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 rounded-full mt-2">
+                        <span class="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></span>
+                        <span class="text-[10px] font-black uppercase tracking-tighter">Sistema Local</span>
+                    </div>
                 </div>
             </div>
 
-            <nav class="flex-1 overflow-y-auto p-4" id="category-list"></nav>
+            <!-- Navegação de Categorias -->
+            <div class="flex-1 overflow-y-auto px-4 custom-scrollbar" id="nav-categories">
+                <!-- Injetado via JS -->
+            </div>
 
-            <div class="p-4 border-t bg-slate-50 flex flex-col gap-2">
-                <button onclick="window.ui.showModal('modal-cat')" class="w-full btn-melo text-white py-3.5 rounded-xl font-black text-sm shadow-md flex items-center justify-center gap-2">
-                    <i class="fas fa-plus"></i> NOVA PÁGINA
+            <!-- Rodapé da Sidebar -->
+            <div class="p-6 border-t border-slate-100 bg-slate-50/50 space-y-3">
+                <button onclick="App.ui.openModal('modal-category')" class="w-full bg-blue-900 hover:bg-blue-800 text-white py-4 rounded-2xl font-bold text-sm shadow-lg shadow-blue-900/20 transition-all flex items-center justify-center gap-3">
+                    <i class="fas fa-folder-plus"></i> NOVA PASTA
                 </button>
                 
-                <div class="grid grid-cols-1 gap-2 mt-2">
-                    <button onclick="window.ui.exportCSV()" class="text-[9px] font-black uppercase tracking-widest bg-green-50 border border-green-200 py-2.5 rounded-lg text-green-700 hover:bg-green-100 flex items-center justify-center gap-2">
-                        <i class="fas fa-file-excel"></i> Planilha Google
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="App.data.exportJSON()" class="bg-white border border-slate-200 py-3 rounded-xl text-[10px] font-black text-slate-500 hover:bg-slate-100 uppercase tracking-widest">
+                        <i class="fas fa-download mr-1"></i> Backup
                     </button>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="window.ui.exportBackup()" class="text-[9px] font-black uppercase tracking-widest bg-white border py-2 rounded-lg text-slate-500 hover:bg-slate-100">
-                            <i class="fas fa-download"></i> Backup
-                        </button>
-                        <label class="text-[9px] font-black uppercase tracking-widest bg-white border py-2 rounded-lg text-slate-500 hover:bg-slate-100 text-center cursor-pointer">
-                            <i class="fas fa-upload"></i> Importar
-                            <input type="file" class="hidden" accept=".json" onchange="window.ui.importBackup(this)">
-                        </label>
-                    </div>
+                    <label class="bg-white border border-slate-200 py-3 rounded-xl text-[10px] font-black text-slate-500 hover:bg-slate-100 uppercase tracking-widest text-center cursor-pointer">
+                        <i class="fas fa-upload mr-1"></i> Importar
+                        <input type="file" id="file-import" class="hidden" accept=".json">
+                    </label>
                 </div>
+                <button onclick="App.data.exportCSV()" class="w-full bg-emerald-50 text-emerald-700 border border-emerald-100 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-100">
+                    <i class="fas fa-file-csv mr-2"></i> Exportar Planilha
+                </button>
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="flex-1 flex flex-col">
-            <header class="h-20 bg-white border-b px-10 flex justify-between items-center shadow-sm">
-                <h2 id="header-title" class="text-xl font-black text-blue-900 uppercase tracking-tight">Estoque Local</h2>
-                <div id="header-actions" class="hidden flex gap-2">
-                    <button onclick="window.ui.showModal('modal-item')" class="btn-melo text-white px-6 py-2.5 rounded-xl font-black text-xs">NOVO PRODUTO</button>
-                    <button onclick="window.ui.deleteCategory()" class="text-red-500 w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center border border-red-100 hover:bg-red-500 hover:text-white transition-colors">
-                        <i class="fas fa-trash-alt"></i>
+        <!-- Área Principal -->
+        <main class="flex-1 flex flex-col relative">
+            <header class="h-24 bg-white/80 backdrop-blur-md border-b border-slate-200 px-12 flex items-center justify-between z-20">
+                <div id="header-info">
+                    <h2 id="view-title" class="text-2xl font-extrabold text-blue-950">Bem-vindo</h2>
+                    <p id="view-subtitle" class="text-sm text-slate-400 font-medium italic">Selecione uma categoria para gerir</p>
+                </div>
+                <div id="header-tools" class="hidden flex items-center gap-4">
+                    <button onclick="App.ui.openModal('modal-product')" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/20">
+                        + NOVO PRODUTO
+                    </button>
+                    <button onclick="App.logic.removeCategory()" class="w-12 h-12 flex items-center justify-center text-slate-300 hover:text-red-500 transition-colors">
+                        <i class="fas fa-trash-alt text-lg"></i>
                     </button>
                 </div>
             </header>
 
-            <div id="content-area" class="flex-1 overflow-y-auto p-10">
-                <div id="empty-view" class="h-full flex flex-col items-center justify-center text-slate-300">
-                    <i class="fas fa-leaf text-5xl mb-4 opacity-10"></i>
-                    <p class="font-black uppercase tracking-widest text-[11px]">Selecione uma pasta lateral</p>
-                </div>
-                <div id="items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+            <div class="flex-1 overflow-y-auto p-12 custom-scrollbar bg-slate-50" id="main-content">
+                <!-- Grid de Produtos ou Estado Vazio -->
             </div>
         </main>
 
         <!-- Modais -->
-        <div id="modal-cat" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-3xl p-8 w-full max-sm shadow-2xl">
-                <h3 class="text-lg font-black text-blue-900 mb-6 uppercase">Criar Pasta</h3>
-                <input type="text" id="in-cat-name" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 mb-6 outline-none focus:border-blue-900" placeholder="Ex: Adubos, Vasos...">
-                <div class="flex gap-3">
-                    <button onclick="window.ui.hideModals()" class="flex-1 py-4 font-bold text-slate-400">Sair</button>
-                    <button onclick="window.ui.createCategory()" class="flex-1 py-4 btn-melo text-white font-black rounded-2xl">CRIAR</button>
+        <div id="modal-category" class="fixed inset-0 bg-blue-950/40 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
+            <div class="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl animate-pop">
+                <h3 class="text-xl font-black text-blue-950 mb-2">CRIAR PASTA</h3>
+                <p class="text-slate-400 text-sm mb-8">Organize os seus produtos por tipo ou local.</p>
+                <input type="text" id="new-cat-name" class="w-full bg-slate-100 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-2xl px-6 py-5 outline-none transition-all font-bold" placeholder="Ex: Sementes de Inverno">
+                <div class="flex gap-4 mt-10">
+                    <button onclick="App.ui.closeModals()" class="flex-1 text-slate-400 font-bold hover:text-slate-600">Cancelar</button>
+                    <button onclick="App.logic.addCategory()" class="flex-1 bg-blue-900 text-white py-5 rounded-2xl font-black shadow-xl shadow-blue-900/20 uppercase tracking-widest text-xs">Criar Pasta</button>
                 </div>
             </div>
         </div>
 
-        <div id="modal-item" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
-                <h3 class="text-lg font-black text-blue-900 mb-6 uppercase">Novo Produto</h3>
-                <input type="text" id="in-item-name" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 mb-4 outline-none focus:border-blue-900" placeholder="Nome do Produto">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col">
-                        <label class="text-[9px] font-black uppercase text-slate-400 mb-1 ml-2">Quantidade</label>
-                        <input type="number" id="in-item-qty" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 text-center font-bold" value="0">
+        <div id="modal-product" class="fixed inset-0 bg-blue-950/40 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
+            <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl animate-pop">
+                <h3 class="text-xl font-black text-blue-950 mb-2 uppercase">Novo Item</h3>
+                <div class="space-y-6 mt-8">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome do Produto</label>
+                        <input type="text" id="prod-name" class="w-full bg-slate-100 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-2xl px-6 py-4 outline-none transition-all font-bold">
                     </div>
-                    <div class="flex flex-col">
-                        <label class="text-[9px] font-black uppercase text-slate-400 mb-1 ml-2">Unidade</label>
-                        <select id="in-item-unit" class="w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 font-bold">
-                            <option value="un">un</option><option value="kg">kg</option><option value="g">g</option><option value="L">L</option>
-                        </select>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Qtd. Inicial</label>
+                            <input type="number" id="prod-qty" value="0" class="w-full bg-slate-100 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-2xl px-6 py-4 outline-none transition-all font-bold text-center">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Unidade</label>
+                            <select id="prod-unit" class="w-full bg-slate-100 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-2xl px-6 py-4 outline-none transition-all font-bold">
+                                <option value="un">Unidades (un)</option>
+                                <option value="kg">Quilos (kg)</option>
+                                <option value="L">Litros (L)</option>
+                                <option value="g">Gramas (g)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="flex gap-3 mt-8">
-                    <button onclick="window.ui.hideModals()" class="flex-1 py-4 font-bold text-slate-400">Sair</button>
-                    <button onclick="window.ui.createItem()" class="flex-1 py-4 btn-melo text-white font-black rounded-2xl">GUARDAR</button>
+                <div class="flex gap-4 mt-10">
+                    <button onclick="App.ui.closeModals()" class="flex-1 text-slate-400 font-bold">Cancelar</button>
+                    <button onclick="App.logic.addProduct()" class="flex-1 bg-blue-900 text-white py-5 rounded-2xl font-black shadow-xl shadow-blue-900/20 uppercase tracking-widest text-xs">Salvar Produto</button>
                 </div>
             </div>
         </div>
 
-        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl translate-y-32 transition-transform duration-500 z-50 shadow-xl">
-            <span id="toast-text" class="font-black text-[10px] uppercase tracking-widest"></span>
+        <!-- Notificação -->
+        <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl z-50 translate-y-40 transition-transform duration-500">
+            <span id="toast-msg" class="text-xs font-black uppercase tracking-widest"></span>
         </div>
     </div>
 
     <script>
-        const DB_KEY = 'melo_flora_local_data';
-        const LOGO_KEY = 'melo_flora_custom_logo';
+        /**
+         * MELO FLORA - SISTEMA DE GESTÃO DE ESTOQUE
+         * Versão Final Corrigida - Fix Import/FileReader
+         */
         
-        window.state = {
-            categories: JSON.parse(localStorage.getItem(DB_KEY)) || [],
-            currentId: null
-        };
+        const App = {
+            state: {
+                categories: JSON.parse(localStorage.getItem('mf_data')) || [],
+                activeCategoryId: null,
+            },
 
-        window.ui = {
             init() {
-                this.loadLogo();
-                this.render();
+                this.events();
+                this.ui.loadLogo();
+                this.ui.renderSidebar();
+                this.ui.renderContent();
             },
 
-            save() {
-                localStorage.setItem(DB_KEY, JSON.stringify(window.state.categories));
-                this.render();
-            },
+            events() {
+                // Evento de Logo - Corrigido para files
+                const logoInput = document.getElementById('file-logo');
+                logoInput.onchange = (e) => {
+                    const file = e.target.files;
+                    if (!file) return;
 
-            loadLogo() {
-                const savedLogo = localStorage.getItem(LOGO_KEY);
-                const img = document.getElementById('main-logo-img');
-                const fallback = document.getElementById('logo-fallback');
-                if (savedLogo) {
-                    img.src = savedLogo;
-                    img.classList.remove('hidden');
-                    fallback.classList.add('hidden');
-                } else {
-                    img.classList.add('hidden');
-                    fallback.classList.remove('hidden');
-                }
-            },
-
-            handleLogoUpload(input) {
-                if (input.files && input.files) {
                     const reader = new FileReader();
-                    reader.onload = (e) => {
-                        localStorage.setItem(LOGO_KEY, e.target.result);
-                        this.loadLogo();
-                        this.toast("Logo Atualizada!");
+                    reader.onload = (event) => {
+                        localStorage.setItem('mf_logo', event.target.result);
+                        App.ui.loadLogo();
+                        App.ui.toast("Logo carregada!");
                     };
-                    reader.readAsDataURL(input.files);
-                }
-            },
-
-            render() {
-                const list = document.getElementById('category-list');
-                list.innerHTML = '';
-                
-                window.state.categories.forEach(cat => {
-                    const btn = document.createElement('button');
-                    btn.className = `sidebar-item w-full text-left px-5 py-4 rounded-2xl mb-2 font-bold text-[11px] uppercase transition-all flex justify-between items-center ${window.state.currentId === cat.id ? 'active' : 'text-slate-400 hover:bg-slate-50'}`;
-                    btn.innerHTML = `
-                        <span><i class="fas fa-folder mr-2 opacity-30"></i> ${cat.name}</span>
-                        <span class="bg-slate-100 text-slate-500 w-6 h-6 rounded-lg flex items-center justify-center text-[9px] ${window.state.currentId === cat.id ? 'bg-blue-800 text-white' : ''}">
-                            ${cat.items ? cat.items.length : 0}
-                        </span>
-                    `;
-                    btn.onclick = () => { window.state.currentId = cat.id; this.render(); };
-                    list.appendChild(btn);
-                });
-                this.renderGrid();
-            },
-
-            renderGrid() {
-                const grid = document.getElementById('items-grid');
-                const cat = window.state.categories.find(c => c.id === window.state.currentId);
-                
-                if (!cat) { 
-                    document.getElementById('empty-view').classList.remove('hidden'); 
-                    document.getElementById('header-actions').classList.add('hidden'); 
-                    document.getElementById('header-title').textContent = "Estoque Local";
-                    grid.innerHTML = ''; 
-                    return; 
-                }
-
-                document.getElementById('empty-view').classList.add('hidden');
-                document.getElementById('header-actions').classList.remove('hidden');
-                document.getElementById('header-title').textContent = cat.name;
-                grid.innerHTML = '';
-                
-                cat.items?.forEach(item => {
-                    const d = document.createElement('div');
-                    d.className = "bg-white p-7 rounded-[2rem] border shadow-sm flex flex-col justify-between hover:shadow-md transition-all group";
-                    d.innerHTML = `
-                        <div class="flex justify-between items-start mb-6">
-                            <h4 class="font-black text-blue-900 text-sm truncate uppercase">${item.name}</h4>
-                            <button onclick="window.ui.deleteItem('${item.id}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
-                        </div>
-                        <div class="flex justify-between items-end border-t border-slate-50 pt-5">
-                            <span class="text-3xl font-black text-blue-900">${item.qty}<small class="text-[10px] ml-1 opacity-30 uppercase font-bold">${item.unit}</small></span>
-                            <div class="flex gap-2">
-                                <button onclick="window.ui.adjust('${item.id}', -1)" class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl hover:bg-red-500 hover:text-white transition-all font-bold shadow-sm">-</button>
-                                <button onclick="window.ui.adjust('${item.id}', 1)" class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl hover:bg-green-600 hover:text-white transition-all font-bold shadow-sm">+</button>
-                            </div>
-                        </div>
-                    `;
-                    grid.appendChild(d);
-                });
-            },
-
-            createCategory() {
-                const n = document.getElementById('in-cat-name').value.trim();
-                if(!n) return;
-                const nc = { id: 'c' + Date.now(), name: n, items: [] };
-                window.state.categories.push(nc); 
-                window.state.currentId = nc.id;
-                document.getElementById('in-cat-name').value = '';
-                this.hideModals(); this.save();
-            },
-
-            createItem() {
-                const n = document.getElementById('in-item-name').value.trim();
-                const q = parseFloat(document.getElementById('in-item-qty').value) || 0;
-                const u = document.getElementById('in-item-unit').value;
-                const cat = window.state.categories.find(c => c.id === window.state.currentId);
-                if(n && cat) {
-                    if(!cat.items) cat.items = [];
-                    cat.items.push({ id: 'i' + Date.now(), name: n, qty: q, unit: u });
-                    this.hideModals(); this.save();
-                }
-            },
-
-            adjust(id, val) {
-                const cat = window.state.categories.find(c => c.id === window.state.currentId);
-                const item = cat.items.find(i => i.id == id);
-                if (item) {
-                    item.qty = Math.max(0, parseFloat((item.qty + val).toFixed(2)));
-                    this.save();
-                }
-            },
-
-            deleteItem(id) {
-                if(confirm("Apagar produto?")) {
-                    const cat = window.state.categories.find(c => c.id === window.state.currentId);
-                    cat.items = cat.items.filter(i => i.id !== id);
-                    this.save();
-                }
-            },
-
-            deleteCategory() {
-                if(confirm("Apagar esta pasta inteira?")) {
-                    window.state.categories = window.state.categories.filter(c => c.id !== window.state.currentId);
-                    window.state.currentId = null;
-                    this.save();
-                }
-            },
-
-            exportCSV() {
-                let csv = "\uFEFFCategoria;Produto;Quantidade;Unidade\n";
-                window.state.categories.forEach(c => c.items?.forEach(i => csv += `${c.name};${i.name};${i.qty};${i.unit}\n`));
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(blob);
-                a.download = "estoque_melo_flora.csv";
-                a.click();
-            },
-
-            exportBackup() {
-                const data = { db: window.state.categories, logo: localStorage.getItem(LOGO_KEY) };
-                const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = "backup_estoque.json";
-                a.click();
-            },
-
-            importBackup(input) {
-                if (!input.files || !input.files) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = JSON.parse(e.target.result);
-                        window.state.categories = data.db || data;
-                        if (data.logo) localStorage.setItem(LOGO_KEY, data.logo);
-                        window.state.currentId = null;
-                        this.save();
-                        this.loadLogo();
-                        this.toast("Dados Importados!");
-                    } catch(err) { this.toast("Ficheiro Inválido"); }
+                    reader.readAsDataURL(file);
                 };
-                reader.readAsText(input.files);
-                input.value = '';
+
+                // Evento de Importação - Corrigido para files
+                const importInput = document.getElementById('file-import');
+                importInput.onchange = (e) => {
+                    const file = e.target.files;
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const raw = JSON.parse(event.target.result);
+                            // Verificação de estrutura de dados
+                            const data = raw.db || (Array.isArray(raw) ? raw : []);
+                            
+                            App.state.categories = data;
+                            if (raw.logo) localStorage.setItem('mf_logo', raw.logo);
+                            
+                            App.state.activeCategoryId = null;
+                            App.logic.sync();
+                            App.ui.loadLogo();
+                            App.ui.toast("Dados restaurados com sucesso!");
+                        } catch (err) {
+                            console.error(err);
+                            App.ui.toast("Erro: Arquivo JSON inválido.");
+                        }
+                    };
+                    reader.readAsText(file);
+                    e.target.value = ''; // Reset input
+                };
             },
 
-            showModal(id) { document.getElementById(id).classList.replace('hidden', 'flex'); },
-            hideModals() { document.querySelectorAll('.fixed.inset-0').forEach(m => m.classList.replace('flex', 'hidden')); },
-            toast(m) { 
-                const t = document.getElementById('toast'); 
-                document.getElementById('toast-text').textContent = m; 
-                t.classList.remove('translate-y-32'); 
-                setTimeout(() => t.classList.add('translate-y-32'), 2500); 
+            logic: {
+                sync() {
+                    localStorage.setItem('mf_data', JSON.stringify(App.state.categories));
+                    App.ui.renderSidebar();
+                    App.ui.renderContent();
+                },
+
+                addCategory() {
+                    const name = document.getElementById('new-cat-name').value.trim();
+                    if (!name) return;
+
+                    const newCat = {
+                        id: crypto.randomUUID(),
+                        name: name,
+                        items: []
+                    };
+
+                    App.state.categories.push(newCat);
+                    App.state.activeCategoryId = newCat.id;
+                    document.getElementById('new-cat-name').value = '';
+                    App.ui.closeModals();
+                    this.sync();
+                },
+
+                removeCategory() {
+                    if (!confirm("Remover esta pasta permanentemente?")) return;
+                    App.state.categories = App.state.categories.filter(c => c.id !== App.state.activeCategoryId);
+                    App.state.activeCategoryId = null;
+                    this.sync();
+                },
+
+                addProduct() {
+                    const name = document.getElementById('prod-name').value.trim();
+                    const qty = parseFloat(document.getElementById('prod-qty').value) || 0;
+                    const unit = document.getElementById('prod-unit').value;
+
+                    if (!name || !App.state.activeCategoryId) return;
+
+                    const cat = App.state.categories.find(c => c.id === App.state.activeCategoryId);
+                    if (cat) {
+                        cat.items.push({ id: crypto.randomUUID(), name, qty, unit });
+                        App.ui.closeModals();
+                        this.sync();
+                    }
+                },
+
+                adjustStock(prodId, amount) {
+                    const cat = App.state.categories.find(c => c.id === App.state.activeCategoryId);
+                    const item = cat?.items.find(i => i.id === prodId);
+                    if (item) {
+                        item.qty = Math.max(0, parseFloat((item.qty + amount).toFixed(2)));
+                        this.sync();
+                    }
+                },
+
+                deleteProduct(prodId) {
+                    const cat = App.state.categories.find(c => c.id === App.state.activeCategoryId);
+                    if (cat) {
+                        cat.items = cat.items.filter(i => i.id !== prodId);
+                        this.sync();
+                    }
+                }
+            },
+
+            data: {
+                exportJSON() {
+                    const payload = {
+                        db: App.state.categories,
+                        logo: localStorage.getItem('mf_logo'),
+                        date: new Date().toISOString()
+                    };
+                    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `melo_flora_backup.json`;
+                    a.click();
+                },
+
+                exportCSV() {
+                    let csv = "\uFEFFCategoria;Produto;Quantidade;Unidade\n";
+                    App.state.categories.forEach(c => {
+                        c.items.forEach(i => {
+                            csv += `"${c.name}";"${i.name}";"${i.qty}";"${i.unit}"\n`;
+                        });
+                    });
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const a = document.createElement("a");
+                    a.href = URL.createObjectURL(blob);
+                    a.download = "estoque_melo_flora.csv";
+                    a.click();
+                }
+            },
+
+            ui: {
+                renderSidebar() {
+                    const container = document.getElementById('nav-categories');
+                    container.innerHTML = '';
+                    App.state.categories.forEach(cat => {
+                        const active = App.state.activeCategoryId === cat.id;
+                        const btn = document.createElement('button');
+                        btn.className = `sidebar-link w-full flex items-center justify-between p-5 rounded-2xl mb-3 font-bold text-xs uppercase tracking-widest ${active ? 'active' : 'text-slate-400 hover:bg-slate-50'}`;
+                        btn.innerHTML = `
+                            <span class="flex items-center gap-3"><i class="fas fa-folder text-lg opacity-40"></i>${cat.name}</span>
+                            <span class="text-[10px] ${active ? 'bg-white/20' : 'bg-slate-100'} px-2 py-1 rounded-lg">${cat.items.length}</span>
+                        `;
+                        btn.onclick = () => { App.state.activeCategoryId = cat.id; this.renderSidebar(); this.renderContent(); };
+                        container.appendChild(btn);
+                    });
+                },
+
+                renderContent() {
+                    const container = document.getElementById('main-content');
+                    const cat = App.state.categories.find(c => c.id === App.state.activeCategoryId);
+                    
+                    if (!cat) {
+                        document.getElementById('header-tools').classList.add('hidden');
+                        document.getElementById('view-title').innerText = "Melo Flora";
+                        container.innerHTML = `<div class="h-full flex items-center justify-center text-slate-200"><i class="fas fa-leaf text-9xl"></i></div>`;
+                        return;
+                    }
+
+                    document.getElementById('header-tools').classList.remove('hidden');
+                    document.getElementById('view-title').innerText = cat.name;
+                    
+                    let html = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">`;
+                    cat.items.forEach(item => {
+                        html += `
+                            <div class="glass-card p-6 rounded-[2rem] border border-slate-100">
+                                <div class="flex justify-between mb-6">
+                                    <span class="bg-blue-50 text-blue-800 p-3 rounded-xl"><i class="fas fa-box"></i></span>
+                                    <button onclick="App.logic.deleteProduct('${item.id}')" class="text-slate-200 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                                </div>
+                                <h4 class="font-black text-blue-900 uppercase truncate">${item.name}</h4>
+                                <p class="text-[10px] text-slate-400 mb-6 uppercase font-bold">${item.unit}</p>
+                                <div class="flex items-center justify-between bg-white p-2 rounded-xl shadow-sm border border-slate-50">
+                                    <button onclick="App.logic.adjustStock('${item.id}', -1)" class="w-10 h-10 bg-slate-50 rounded-lg font-bold">-</button>
+                                    <div class="text-center"><span class="block text-xl font-black">${item.qty}</span></div>
+                                    <button onclick="App.logic.adjustStock('${item.id}', 1)" class="w-10 h-10 bg-slate-50 rounded-lg font-bold">+</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html + `</div>`;
+                },
+
+                loadLogo() {
+                    const data = localStorage.getItem('mf_logo');
+                    const img = document.getElementById('display-logo');
+                    const ph = document.getElementById('placeholder-logo');
+                    if (data) { img.src = data; img.classList.remove('hidden'); ph.classList.add('hidden'); }
+                },
+
+                openModal(id) { document.getElementById(id).classList.replace('hidden', 'flex'); },
+                closeModals() { document.querySelectorAll('.fixed.inset-0').forEach(m => m.classList.replace('flex', 'hidden')); },
+                toast(msg) {
+                    const t = document.getElementById('toast');
+                    document.getElementById('toast-msg').innerText = msg;
+                    t.classList.remove('translate-y-40');
+                    setTimeout(() => t.classList.add('translate-y-40'), 3000);
+                }
             }
         };
 
-        window.ui.init();
+        window.onload = () => App.init();
     </script>
 </body>
 </html>
