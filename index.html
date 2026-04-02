@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Melo Flora - Gestão de Estoque Profissional</title>
+    <title>Melo Flora - Gestão de Estoque Cloud</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -12,32 +12,17 @@
         .btn-melo { background-color: var(--melo-blue); transition: all 0.2s ease; }
         .btn-melo:hover { filter: brightness(1.2); transform: translateY(-1px); }
         .logo-box { 
-            width: 100%; 
-            height: 140px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border-radius: 1.5rem; 
-            overflow: hidden; 
-            background: white; 
-            border: 2px solid #f1f5f9; 
-            cursor: pointer;
-            position: relative;
+            width: 100%; height: 140px; display: flex; align-items: center; justify-content: center; 
+            border-radius: 1.5rem; overflow: hidden; background: white; border: 2px solid #f1f5f9; 
+            cursor: pointer; position: relative;
         }
         .logo-box:hover::after {
-            content: "TROCAR FOTO";
-            position: absolute;
-            inset: 0;
-            background: rgba(30, 58, 138, 0.8);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: 900;
+            content: "TROCAR LOGO"; position: absolute; inset: 0; background: rgba(30, 58, 138, 0.8);
+            color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900;
         }
         #main-logo-img { width: 100%; height: 100%; object-fit: contain; padding: 12px; }
         .logo-placeholder { display: flex; flex-direction: column; align-items: center; color: #cbd5e1; }
+        .loading-overlay { background: rgba(255,255,255,0.8); backdrop-filter: blur(4px); }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
@@ -47,7 +32,6 @@
         <aside class="w-72 bg-white border-r flex flex-col shadow-lg z-20">
             <div class="p-6 border-b text-center">
                 <div class="logo-box" onclick="document.getElementById('in-logo-file').click()">
-                    <!-- Se não houver imagem salva, o onerror ativa o fallback -->
                     <img id="main-logo-img" alt="Logo" class="hidden">
                     <div id="logo-fallback" class="logo-placeholder">
                         <i class="fas fa-camera text-3xl mb-2"></i>
@@ -57,7 +41,7 @@
                 </div>
                 <div class="mt-4">
                     <h1 class="text-sm font-black text-blue-900 uppercase tracking-widest">Melo Flora</h1>
-                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Estoque Local</p>
+                    <p id="cloud-status" class="text-[9px] text-orange-400 font-bold uppercase tracking-tighter">Conectando Nuvem...</p>
                 </div>
             </div>
 
@@ -72,23 +56,18 @@
                     <button onclick="window.ui.exportCSV()" class="text-[9px] font-black uppercase tracking-widest bg-green-50 border border-green-200 py-2.5 rounded-lg text-green-700 hover:bg-green-100 flex items-center justify-center gap-2">
                         <i class="fas fa-file-excel"></i> Planilha Google
                     </button>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="window.ui.exportBackup()" class="text-[9px] font-black uppercase tracking-widest bg-white border py-2 rounded-lg text-slate-500 hover:bg-slate-100">
-                            <i class="fas fa-download mr-1"></i> Backup
-                        </button>
-                        <label class="text-[9px] font-black uppercase tracking-widest bg-white border py-2 rounded-lg text-slate-500 hover:bg-slate-100 text-center cursor-pointer">
-                            <i class="fas fa-upload mr-1"></i> Importar
-                            <input type="file" class="hidden" accept=".json" onchange="window.ui.importBackup(this)">
-                        </label>
+                    <div class="p-2 bg-white rounded-lg border border-dashed border-slate-300 text-center">
+                        <p class="text-[8px] text-slate-400 uppercase font-bold mb-1">ID para Partilhar:</p>
+                        <p id="app-id-display" class="text-[10px] font-mono font-bold text-blue-900 break-all select-all cursor-pointer" onclick="window.ui.copyAppId()"></p>
                     </div>
                 </div>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 flex flex-col">
+        <main class="flex-1 flex flex-col relative">
             <header class="h-20 bg-white border-b px-10 flex justify-between items-center shadow-sm">
-                <h2 id="header-title" class="text-xl font-black text-blue-900 uppercase tracking-tight">Estoque Melo Flora</h2>
+                <h2 id="header-title" class="text-xl font-black text-blue-900 uppercase tracking-tight">Estoque Cloud</h2>
                 <div id="header-actions" class="hidden flex gap-2">
                     <button onclick="window.ui.showModal('modal-item')" class="btn-melo text-white px-6 py-2.5 rounded-xl font-black text-xs">NOVO PRODUTO</button>
                     <button onclick="window.ui.deleteCategory()" class="text-red-500 w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center border border-red-100 hover:bg-red-500 hover:text-white transition-colors">
@@ -99,10 +78,17 @@
 
             <div id="content-area" class="flex-1 overflow-y-auto p-10">
                 <div id="empty-view" class="h-full flex flex-col items-center justify-center text-slate-300">
-                    <i class="fas fa-leaf text-5xl mb-4 opacity-10"></i>
-                    <p class="font-black uppercase tracking-widest text-[11px]">Selecione uma pasta lateral</p>
+                    <i class="fas fa-cloud-upload-alt text-5xl mb-4 opacity-10"></i>
+                    <p class="font-black uppercase tracking-widest text-[11px]">Sincronizado com a Nuvem</p>
                 </div>
                 <div id="items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+            </div>
+
+            <div id="loading-overlay" class="absolute inset-0 z-30 loading-overlay flex items-center justify-center hidden">
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-circle-notch fa-spin text-3xl text-blue-900 mb-2"></i>
+                    <span class="text-[10px] font-black uppercase text-blue-900 tracking-widest">Sincronizando...</span>
+                </div>
             </div>
         </main>
 
@@ -146,26 +132,80 @@
         </div>
     </div>
 
-    <script>
-        const DB_KEY = 'melo_flora_local_v3';
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'melo-flora-default';
         const LOGO_KEY = 'melo_flora_custom_logo';
-        
+
         window.state = {
-            categories: JSON.parse(localStorage.getItem(DB_KEY)) || [],
-            currentId: null
+            categories: [],
+            currentId: null,
+            user: null
         };
 
         window.ui = {
-            init() {
+            async init() {
+                this.showLoading(true);
+                document.getElementById('app-id-display').textContent = appId;
+                
+                // Auth Rule 3
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (e) {
+                    console.error("Erro Auth:", e);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    window.state.user = user;
+                    if (user) {
+                        document.getElementById('cloud-status').textContent = "Conectado à Nuvem";
+                        document.getElementById('cloud-status').className = "text-[9px] text-green-500 font-bold uppercase tracking-tighter";
+                        this.setupSync();
+                    }
+                });
+
                 this.loadLogo();
-                this.render();
+            },
+
+            setupSync() {
+                // Rule 1: Public path
+                const inventoryRef = doc(db, 'artifacts', appId, 'public', 'data', 'inventory');
+                
+                onSnapshot(inventoryRef, (snapshot) => {
+                    this.showLoading(false);
+                    if (snapshot.exists()) {
+                        window.state.categories = snapshot.data().categories || [];
+                    } else {
+                        window.state.categories = [];
+                    }
+                    this.render();
+                }, (error) => {
+                    this.showLoading(false);
+                    this.toast("Erro ao carregar nuvem");
+                });
+            },
+
+            async cloudSave() {
+                if (!window.state.user) return;
+                const inventoryRef = doc(db, 'artifacts', appId, 'public', 'data', 'inventory');
+                await setDoc(inventoryRef, { categories: window.state.categories });
             },
 
             loadLogo() {
                 const savedLogo = localStorage.getItem(LOGO_KEY);
                 const img = document.getElementById('main-logo-img');
                 const fallback = document.getElementById('logo-fallback');
-                
                 if (savedLogo) {
                     img.src = savedLogo;
                     img.classList.remove('hidden');
@@ -187,11 +227,6 @@
                     };
                     reader.readAsDataURL(input.files);
                 }
-            },
-
-            save() {
-                localStorage.setItem(DB_KEY, JSON.stringify(window.state.categories));
-                this.render();
             },
 
             render() {
@@ -220,7 +255,7 @@
                 if (!cat) { 
                     document.getElementById('empty-view').classList.remove('hidden'); 
                     document.getElementById('header-actions').classList.add('hidden'); 
-                    document.getElementById('header-title').textContent = "Estoque Melo Flora";
+                    document.getElementById('header-title').textContent = "Estoque Cloud";
                     grid.innerHTML = ''; 
                     return; 
                 }
@@ -252,21 +287,23 @@
                         grid.appendChild(d);
                     });
                 } else {
-                    grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest">Nenhum produto aqui</div>`;
+                    grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest">Pasta vazia</div>`;
                 }
             },
 
-            createCategory() {
+            async createCategory() {
                 const n = document.getElementById('in-cat-name').value.trim();
                 if(!n) return;
                 const nc = { id: 'c' + Date.now(), name: n, items: [] };
                 window.state.categories.push(nc); 
                 window.state.currentId = nc.id;
                 document.getElementById('in-cat-name').value = '';
-                this.hideModals(); this.save(); this.toast("Pasta Criada");
+                this.hideModals();
+                await this.cloudSave();
+                this.toast("Página Criada!");
             },
 
-            createItem() {
+            async createItem() {
                 const n = document.getElementById('in-item-name').value.trim();
                 const q = parseFloat(document.getElementById('in-item-qty').value) || 0;
                 const u = document.getElementById('in-item-unit').value;
@@ -277,58 +314,39 @@
                     cat.items.push({ id: 'i' + Date.now(), name: n, qty: q, unit: u });
                     document.getElementById('in-item-name').value = '';
                     document.getElementById('in-item-qty').value = '0';
-                    this.hideModals(); this.save(); this.toast("Produto Guardado");
+                    this.hideModals();
+                    await this.cloudSave();
+                    this.toast("Produto Guardado!");
                 }
             },
 
-            adjust(id, val) {
+            async adjust(id, val) {
                 const cat = window.state.categories.find(c => c.id === window.state.currentId);
                 const item = cat.items.find(i => i.id == id);
                 if (item) {
                     item.qty = Math.max(0, parseFloat((item.qty + val).toFixed(2)));
-                    this.save();
+                    await this.cloudSave();
                 }
             },
 
-            deleteItem(id) {
-                if(confirm("Apagar este produto?")) {
-                    const cat = window.state.categories.find(c => c.id === window.state.currentId);
-                    cat.items = cat.items.filter(i => i.id !== id);
-                    this.save();
-                }
+            async deleteItem(id) {
+                const cat = window.state.categories.find(c => c.id === window.state.currentId);
+                cat.items = cat.items.filter(i => i.id !== id);
+                await this.cloudSave();
             },
 
-            deleteCategory() { 
-                if(confirm("Deseja apagar esta pasta e tudo o que está dentro dela?")) { 
-                    window.state.categories = window.state.categories.filter(c => c.id !== window.state.currentId); 
-                    window.state.currentId = null; 
-                    this.save(); 
-                } 
-            },
-
-            exportBackup() {
-                const data = {
-                    db: window.state.categories,
-                    logo: localStorage.getItem(LOGO_KEY)
-                };
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `estoque_melo_flora_backup.json`;
-                a.click();
-                this.toast("Backup Criado");
+            async deleteCategory() { 
+                window.state.categories = window.state.categories.filter(c => c.id !== window.state.currentId); 
+                window.state.currentId = null; 
+                await this.cloudSave(); 
             },
 
             exportCSV() {
-                let csvContent = "\uFEFF"; 
-                csvContent += "Categoria;Produto;Quantidade;Unidade\n";
+                let csvContent = "\uFEFFCategoria;Produto;Quantidade;Unidade\n";
                 window.state.categories.forEach(cat => {
-                    if(cat.items) {
-                        cat.items.forEach(item => {
-                            csvContent += `${cat.name};${item.name};${item.qty};${item.unit}\n`;
-                        });
-                    }
+                    cat.items?.forEach(item => {
+                        csvContent += `${cat.name};${item.name};${item.qty};${item.unit}\n`;
+                    });
                 });
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
@@ -336,32 +354,20 @@
                 link.href = url;
                 link.download = "estoque_melo_flora.csv";
                 link.click();
-                this.toast("Planilha Gerada!");
+                this.toast("CSV Exportado!");
             },
 
-            importBackup(input) {
-                if (!input.files || !input.files) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const imported = JSON.parse(e.target.result);
-                        // Suporta tanto formato simples quanto formato com logo
-                        window.state.categories = imported.db || imported;
-                        if (imported.logo) {
-                            localStorage.setItem(LOGO_KEY, imported.logo);
-                            this.loadLogo();
-                        }
-                        window.state.currentId = null;
-                        this.save();
-                        this.toast("Dados Restaurados!");
-                    } catch (err) {
-                        this.toast("Erro ao ler backup");
-                    }
-                };
-                reader.readAsText(input.files);
-                input.value = ''; 
+            copyAppId() {
+                const el = document.createElement('textarea');
+                el.value = appId;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                this.toast("ID Copiado!");
             },
 
+            showLoading(s) { document.getElementById('loading-overlay').classList.toggle('hidden', !s); },
             showModal(id) { document.getElementById(id).classList.replace('hidden', 'flex'); },
             hideModals() { document.querySelectorAll('.fixed.inset-0').forEach(m => m.classList.replace('flex', 'hidden')); },
             toast(m) { 
